@@ -568,7 +568,7 @@ let pendingChar = null;
 
 function previewChar(id) {
   pendingChar = CHARS[id];
-  document.getElementById('popupIcon').textContent  = pendingChar.icon;
+  document.getElementById('popupIcon').innerHTML    = pendingChar.icon;
   document.getElementById('popupName').textContent  = pendingChar.name;
   document.getElementById('popupQuote').textContent = `「${pendingChar.quote}」`;
   document.getElementById('charPopupOverlay').classList.add('active');
