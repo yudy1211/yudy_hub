@@ -593,12 +593,28 @@ function floatText(text) {
   setTimeout(() => el.remove(), 1000);
 }
 
+function showSpeechBubble(text) {
+  const area = document.getElementById('uncleArea');
+  // Remove any existing bubble
+  const old = area.querySelector('.speech-bubble');
+  if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'speech-bubble';
+  el.textContent = text;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 2100);
+}
+
 function tap() {
   state.tapCount++;
   const expGain = 1 + Math.floor(state.level * 0.5);
   gainExp(expGain);
   floatText(`+${expGain} EXP`);
-  // Small random events
+
+  // Show character's signature quote on every tap
+  if (selectedChar) showSpeechBubble(selectedChar.quote);
+
+  // Small random events every 10 taps
   if (state.tapCount % 10 === 0) {
     const events = [
       ['「よし、一丁やるか」とつぶやいた', 'good', {mood: 5}],
@@ -607,7 +623,7 @@ function tap() {
       ['「若いもんには負けん」と燃えている', 'good', {work: 8}],
     ];
     const [msg, type, delta] = events[Math.floor(Math.random() * events.length)];
-    addLog(`${document.getElementById('uncleName').textContent}が${msg}`, type);
+    addLog(`${selectedChar ? selectedChar.name : 'おじさん'}が${msg}`, type);
     Object.entries(delta).forEach(([k, v]) => { state[k] = clamp(state[k] + v); });
   }
   updateUI();
