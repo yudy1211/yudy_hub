@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>おじさん育成ゲーム</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .game-container {
+      width: 480px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255,215,0,0.5);
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 16px;
+    }
+
+    /* Uncle display */
+    .uncle-area {
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .uncle-sprite {
+      font-size: 80px;
+      display: block;
+      line-height: 1;
+      margin-bottom: 8px;
+      transition: transform 0.1s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .uncle-sprite:active { transform: scale(0.9); }
+
+    .uncle-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .uncle-title {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .uncle-age {
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+
+    /* Floating text */
+    .float-text {
+      position: absolute;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffd700;
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-bar {
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .bar-hp    { background: linear-gradient(90deg, #ff4444, #ff8888); }
+    .bar-mood  { background: linear-gradient(90deg, #ffaa00, #ffdd55); }
+    .bar-work  { background: linear-gradient(90deg, #4488ff, #88bbff); }
+    .bar-belly { background: linear-gradient(90deg, #44cc88, #88ffbb); }
+
+    /* EXP */
+    .exp-section {
+      margin-bottom: 16px;
+    }
+
+    .exp-label {
+      font-size: 0.8rem;
+      color: #aaa;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .exp-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
+      height: 12px;
+      overflow: hidden;
+    }
+
+    .exp-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #9b59b6, #e056fd);
+      transition: width 0.4s ease;
+    }
+
+    /* Actions */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #fff;
+      padding: 10px 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn .icon { font-size: 1.4rem; }
+
+    /* Cooldown overlay on button */
+    .btn-cooldown {
+      font-size: 0.65rem;
+      color: #aaa;
+    }
+
+    /* Event log */
+    .log {
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      max-height: 90px;
+      overflow-y: auto;
+      font-size: 0.78rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    .log-entry { margin-bottom: 2px; }
+    .log-entry.good  { color: #88ffbb; }
+    .log-entry.bad   { color: #ff8888; }
+    .log-entry.event { color: #ffd700; }
+
+    /* Money */
+    .money-display {
+      text-align: center;
+      font-size: 1rem;
+      color: #ffd700;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    /* Level up banner */
+    .levelup-banner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #1a1a2e;
+      padding: 24px 48px;
+      border-radius: 16px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      z-index: 100;
+      box-shadow: 0 0 60px rgba(255,215,0,0.8);
+      animation: popIn 0.3s ease;
+      text-align: center;
+    }
+
+    @keyframes popIn {
+      0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+    }
+
+    .levelup-banner .sub { font-size: 1rem; margin-top: 4px; }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <h1>おじさん育成ゲーム</h1>
+  <p class="subtitle">タップしておじさんを育てよう！</p>
+
+  <div class="uncle-area" id="uncleArea">
+    <span class="uncle-sprite" id="uncleSpr" onclick="tap()">🧔</span>
+    <div class="uncle-name" id="uncleName">田中おじさん</div>
+    <div class="uncle-title" id="uncleTitle">ひよっこ社員</div>
+    <div class="uncle-age" id="uncleAge">年齢: 35歳</div>
+  </div>
+
+  <div class="money-display">
+    💰 所持金: <span id="money">1,000</span>円
+    &nbsp;|&nbsp; Lv.<span id="level">1</span>
+  </div>
+
+  <div class="exp-section">
+    <div class="exp-label">
+      <span>経験値</span>
+      <span id="expText">0 / 100</span>
+    </div>
+    <div class="exp-track"><div class="exp-fill" id="expBar" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-bar">
+      <div class="stat-label"><span>❤️ 体力</span><span id="hpVal">80</span></div>
+      <div class="bar-track"><div class="bar-fill bar-hp" id="hpBar" style="width:80%"></div></div>
+    </div>
+    <div class="stat-bar">
+      <div class="stat-label"><span>😄 機嫌</span><span id="moodVal">70</span></div>
+      <div class="bar-track"><div class="bar-fill bar-mood" id="moodBar" style="width:70%"></div></div>
+    </div>
+    <div class="stat-bar">
+      <div class="stat-label"><span>💼 やる気</span><span id="workVal">60</span></div>
+      <div class="bar-track"><div class="bar-fill bar-work" id="workBar" style="width:60%"></div></div>
+    </div>
+    <div class="stat-bar">
+      <div class="stat-label"><span>🍺 お腹</span><span id="bellyVal">50</span></div>
+      <div class="bar-track"><div class="bar-fill bar-belly" id="bellyBar" style="width:50%"></div></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="btnWork" onclick="doAction('work')">
+      <span class="icon">💼</span>
+      <span>仕事する</span>
+      <span class="btn-cooldown" id="cdWork"></span>
+    </button>
+    <button class="btn" id="btnEat" onclick="doAction('eat')">
+      <span class="icon">🍱</span>
+      <span>飯を食う</span>
+      <span class="btn-cooldown" id="cdEat"></span>
+    </button>
+    <button class="btn" id="btnBeer" onclick="doAction('beer')">
+      <span class="icon">🍺</span>
+      <span>飲みに行く</span>
+      <span class="btn-cooldown" id="cdBeer"></span>
+    </button>
+    <button class="btn" id="btnSleep" onclick="doAction('sleep')">
+      <span class="icon">😴</span>
+      <span>昼寝する</span>
+      <span class="btn-cooldown" id="cdSleep"></span>
+    </button>
+    <button class="btn" id="btnGolf" onclick="doAction('golf')">
+      <span class="icon">⛳</span>
+      <span>ゴルフ</span>
+      <span class="btn-cooldown" id="cdGolf"></span>
+    </button>
+    <button class="btn" id="btnTrain" onclick="doAction('train')">
+      <span class="icon">🏋️</span>
+      <span>筋トレ</span>
+      <span class="btn-cooldown" id="cdTrain"></span>
+    </button>
+  </div>
+
+  <div class="log" id="log">
+    <div class="log-entry event">🎮 おじさんを育てよう！おじさんをタップしても経験値が入るよ</div>
+  </div>
+</div>
+
+<div class="levelup-banner" id="levelupBanner">
+  <div>🎉 レベルアップ！</div>
+  <div class="sub" id="levelupSub"></div>
+</div>
+
+<script>
+const TITLES = [
+  'ひよっこ社員',     // 1
+  '平社員',           // 2
+  '中堅社員',         // 3
+  '係長',             // 4
+  '課長',             // 5
+  '部長',             // 6
+  '取締役',           // 7
+  '専務',             // 8
+  '副社長',           // 9
+  '社長',             // 10
+];
+
+const SPRITES = ['🧔','👴','🧓','👨‍💼','🧑‍💼','👔','🏆','⭐','💎','👑'];
+
+const ACTIONS = {
+  work:  { icon:'💼', cd: 10, label:'仕事する' },
+  eat:   { icon:'🍱', cd: 8,  label:'飯を食う' },
+  beer:  { icon:'🍺', cd: 15, label:'飲みに行く' },
+  sleep: { icon:'😴', cd: 12, label:'昼寝する' },
+  golf:  { icon:'⛳', cd: 20, label:'ゴルフ' },
+  train: { icon:'🏋️', cd: 18, label:'筋トレ' },
+};
+
+const state = {
+  level: 1,
+  exp: 0,
+  expNeeded: 100,
+  money: 1000,
+  hp: 80,
+  mood: 70,
+  work: 60,
+  belly: 50,
+  age: 35,
+  tapCount: 0,
+  cooldowns: {},
+};
+
+function clamp(v, min=0, max=100) { return Math.max(min, Math.min(max, v)); }
+
+function expForLevel(lv) { return Math.floor(100 * Math.pow(1.35, lv - 1)); }
+
+function updateUI() {
+  const lv = state.level;
+  document.getElementById('level').textContent = lv;
+  document.getElementById('uncleSpr').textContent = SPRITES[Math.min(lv-1, SPRITES.length-1)];
+  document.getElementById('uncleTitle').textContent = TITLES[Math.min(lv-1, TITLES.length-1)];
+  document.getElementById('uncleAge').textContent = `年齢: ${state.age}歳`;
+  document.getElementById('money').textContent = state.money.toLocaleString();
+
+  const pct = v => `${clamp(v)}%`;
+  document.getElementById('hpVal').textContent   = Math.round(state.hp);
+  document.getElementById('moodVal').textContent  = Math.round(state.mood);
+  document.getElementById('workVal').textContent  = Math.round(state.work);
+  document.getElementById('bellyVal').textContent = Math.round(state.belly);
+  document.getElementById('hpBar').style.width   = pct(state.hp);
+  document.getElementById('moodBar').style.width  = pct(state.mood);
+  document.getElementById('workBar').style.width  = pct(state.work);
+  document.getElementById('bellyBar').style.width = pct(state.belly);
+
+  const expPct = (state.exp / state.expNeeded * 100).toFixed(1);
+  document.getElementById('expBar').style.width = `${expPct}%`;
+  document.getElementById('expText').textContent = `${state.exp} / ${state.expNeeded}`;
+}
+
+function addLog(msg, type='') {
+  const log = document.getElementById('log');
+  const el = document.createElement('div');
+  el.className = 'log-entry' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  log.prepend(el);
+  while (log.children.length > 30) log.removeChild(log.lastChild);
+}
+
+function gainExp(amount) {
+  state.exp += amount;
+  while (state.exp >= state.expNeeded) {
+    state.exp -= state.expNeeded;
+    state.level++;
+    state.expNeeded = expForLevel(state.level);
+    state.age++;
+    showLevelUp();
+  }
+}
+
+function showLevelUp() {
+  const banner = document.getElementById('levelupBanner');
+  const sub = document.getElementById('levelupSub');
+  const title = TITLES[Math.min(state.level-1, TITLES.length-1)];
+  sub.textContent = `Lv.${state.level} 「${title}」になった！`;
+  banner.style.display = 'block';
+  addLog(`🎉 レベルアップ！ Lv.${state.level}「${title}」`, 'event');
+  setTimeout(() => { banner.style.display = 'none'; }, 2200);
+}
+
+function floatText(text) {
+  const area = document.getElementById('uncleArea');
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function tap() {
+  state.tapCount++;
+  const expGain = 1 + Math.floor(state.level * 0.5);
+  gainExp(expGain);
+  floatText(`+${expGain} EXP`);
+  // Small random events
+  if (state.tapCount % 10 === 0) {
+    const events = [
+      ['「よし、一丁やるか」とつぶやいた', 'good', {mood: 5}],
+      ['「うう…腰が痛い」と嘆いた', 'bad', {hp: -5}],
+      ['「今日も一杯やるか」と微笑んだ', 'good', {mood: 3}],
+      ['「若いもんには負けん」と燃えている', 'good', {work: 8}],
+    ];
+    const [msg, type, delta] = events[Math.floor(Math.random() * events.length)];
+    addLog(`${document.getElementById('uncleName').textContent}が${msg}`, type);
+    Object.entries(delta).forEach(([k, v]) => { state[k] = clamp(state[k] + v); });
+  }
+  updateUI();
+}
+
+const actionDefs = {
+  work(s) {
+    const earn = 200 + s.level * 50 + Math.floor(Math.random() * 100);
+    const expG = 10 + s.level * 2;
+    s.money += earn;
+    s.work = clamp(s.work - 15);
+    s.hp   = clamp(s.hp   - 10);
+    s.mood = clamp(s.mood - 5);
+    gainExp(expG);
+    addLog(`💼 残業を乗り越えた！ +${earn}円 +${expG}EXP`, 'good');
+    floatText(`+${earn}円`);
+
+    // bonus event
+    if (Math.random() < 0.2) {
+      const bonus = 500 * s.level;
+      s.money += bonus;
+      addLog(`⭐ 上司に褒められた！ ボーナス +${bonus}円`, 'event');
+    }
+  },
+  eat(s) {
+    const cost = 500 + Math.floor(Math.random() * 300);
+    if (s.money < cost) { addLog('😢 お金が足りない…', 'bad'); return false; }
+    s.money -= cost;
+    s.belly = clamp(s.belly + 30);
+    s.hp    = clamp(s.hp    + 10);
+    s.mood  = clamp(s.mood  + 5);
+    gainExp(5);
+    const foods = ['カツ丼','ラーメン','焼肉','寿司','唐揚げ定食'];
+    const food = foods[Math.floor(Math.random() * foods.length)];
+    addLog(`🍱 ${food}を食べた！ -${cost}円 お腹+30`, 'good');
+    floatText('おいしい！');
+  },
+  beer(s) {
+    const cost = 1000 + Math.floor(Math.random() * 500);
+    if (s.money < cost) { addLog('😢 お金が足りない…飲めない！', 'bad'); return false; }
+    s.money -= cost;
+    s.mood  = clamp(s.mood  + 25);
+    s.belly = clamp(s.belly + 20);
+    s.hp    = clamp(s.hp    - 5);
+    gainExp(8 + s.level);
+    addLog(`🍺 同僚と飲みに行った！ -${cost}円 機嫌+25`, 'good');
+    floatText('かんぱーい🍺');
+
+    if (Math.random() < 0.15) {
+      addLog('😅 二日酔いになった…体力-10', 'bad');
+      s.hp = clamp(s.hp - 10);
+    }
+  },
+  sleep(s) {
+    s.hp   = clamp(s.hp   + 20);
+    s.work = clamp(s.work + 15);
+    gainExp(3);
+    const spots = ['デスクで','トイレで','会議室の隅で'];
+    const spot = spots[Math.floor(Math.random() * spots.length)];
+    addLog(`😴 ${spot}昼寝した！ 体力+20 やる気+15`, 'good');
+    floatText('zzz…');
+
+    if (Math.random() < 0.1) {
+      addLog('🚨 上司に見つかってしまった！ 機嫌-15', 'bad');
+      s.mood = clamp(s.mood - 15);
+    }
+  },
+  golf(s) {
+    const cost = 3000 + Math.floor(Math.random() * 2000);
+    if (s.money < cost) { addLog('😢 ゴルフに行くお金がない…', 'bad'); return false; }
+    s.money -= cost;
+    s.mood  = clamp(s.mood  + 30);
+    s.work  = clamp(s.work  + 20);
+    s.hp    = clamp(s.hp    - 5);
+    gainExp(20 + s.level * 2);
+    addLog(`⛳ ゴルフで交流！ -${cost}円 機嫌+30 やる気+20`, 'good');
+    floatText('ナイスショット！⛳');
+
+    if (Math.random() < 0.25) {
+      const deal = 5000 * s.level;
+      s.money += deal;
+      addLog(`🤝 接待ゴルフで契約成立！ +${deal}円`, 'event');
+    }
+  },
+  train(s) {
+    s.hp   = clamp(s.hp   + 25);
+    s.work = clamp(s.work + 10);
+    s.mood = clamp(s.mood - 5);
+    gainExp(12 + s.level);
+    addLog(`🏋️ 筋トレした！ 体力+25 やる気+10`, 'good');
+    floatText('鍛えるぞ！💪');
+
+    if (Math.random() < 0.1) {
+      addLog('😫 筋肉痛になった…でも満足', 'bad');
+    }
+  },
+};
+
+function doAction(name) {
+  const btn = document.getElementById(`btn${name.charAt(0).toUpperCase() + name.slice(1)}`);
+  if (btn.disabled) return;
+
+  const result = actionDefs[name](state);
+  if (result === false) return; // not enough money etc.
+
+  updateUI();
+
+  // Start cooldown
+  const cd = ACTIONS[name].cd;
+  startCooldown(name, cd);
+}
+
+function startCooldown(name, seconds) {
+  const key = name.charAt(0).toUpperCase() + name.slice(1);
+  const btn = document.getElementById(`btn${key}`);
+  const cdEl = document.getElementById(`cd${key}`);
+  btn.disabled = true;
+  state.cooldowns[name] = seconds;
+
+  const iv = setInterval(() => {
+    state.cooldowns[name]--;
+    if (state.cooldowns[name] <= 0) {
+      clearInterval(iv);
+      btn.disabled = false;
+      cdEl.textContent = '';
+    } else {
+      cdEl.textContent = `${state.cooldowns[name]}s`;
+    }
+  }, 1000);
+  cdEl.textContent = `${seconds}s`;
+}
+
+// Passive time drain (every 5 seconds)
+setInterval(() => {
+  state.hp    = clamp(state.hp    - 1);
+  state.mood  = clamp(state.mood  - 0.5);
+  state.work  = clamp(state.work  - 0.8);
+  state.belly = clamp(state.belly - 1.2);
+
+  // Low status warnings
+  if (state.hp < 20) addLog('⚠️ 体力が危険！休まないと倒れるぞ', 'bad');
+  if (state.belly < 15) addLog('🍽️ お腹が空いた…何か食べないと', 'bad');
+
+  // Random events
+  if (Math.random() < 0.06) {
+    const events = [
+      ['📧 部下からメールが届いた（読まなかった）', 'event', {}],
+      ['📰 日経新聞を熟読した', 'good', {work: 5}],
+      ['☕ コーヒーを一杯飲んだ', 'good', {mood: 3}],
+      ['📱 部下にLINEを送った（既読スルー）', 'bad', {mood: -5}],
+      ['🚿 スポーツジムのシャワーを浴びた', 'good', {hp: 5}],
+      ['🎤 カラオケでストレス発散した', 'good', {mood: 10, money: -500}],
+      ['💬 「昔はよかった」とつぶやいた', 'event', {}],
+      ['🍜 一人でラーメンを食べた', 'good', {belly: 10, money: -800}],
+    ];
+    const [msg, type, delta] = events[Math.floor(Math.random() * events.length)];
+    addLog(msg, type);
+    Object.entries(delta).forEach(([k, v]) => { state[k] = clamp(state[k] + v); });
+  }
+
+  updateUI();
+}, 5000);
+
+// Initialize
+updateUI();
+</script>
+</body>
+</html>
