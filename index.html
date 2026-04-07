@@ -438,21 +438,29 @@
   <h1>おじさん育成ゲーム</h1>
   <p>育てるキャラクターを選んでね！</p>
   <div class="char-cards">
-    <div class="char-card" onclick="selectChar('uu')">
+    <div class="char-card" onclick="previewChar('uu')">
       <span class="char-icon">🐦</span>
       <span class="char-name">ウッウ</span>
-      <span class="char-quote">「マンキンで行こうや！」</span>
     </div>
-    <div class="char-card" onclick="selectChar('nabe')">
+    <div class="char-card" onclick="previewChar('nabe')">
       <span class="char-icon">🍲</span>
       <span class="char-name">なべ</span>
-      <span class="char-quote">「脱ホストチームCEC渡辺です」</span>
     </div>
-    <div class="char-card" onclick="selectChar('zuru')">
+    <div class="char-card" onclick="previewChar('zuru')">
       <span class="char-icon">😏</span>
       <span class="char-name">ズル</span>
-      <span class="char-quote">「お〜う、お疲れっしたあ」</span>
     </div>
+  </div>
+</div>
+
+<!-- キャラクター確認ポップアップ -->
+<div class="char-popup-overlay" id="charPopupOverlay" onclick="closePopup(event)">
+  <div class="char-popup">
+    <span class="popup-icon" id="popupIcon"></span>
+    <div class="popup-name" id="popupName"></div>
+    <div class="popup-bubble popup-bubble-tail" id="popupQuote"></div>
+    <button class="btn-confirm" onclick="confirmChar()">このキャラで決定！</button>
+    <button class="btn-back" onclick="closePopup()">戻る</button>
   </div>
 </div>
 
