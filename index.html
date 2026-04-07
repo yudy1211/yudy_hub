@@ -470,6 +470,25 @@
 </div>
 
 <script>
+// Character definitions
+const CHARS = {
+  uu:   { name: 'ウッウ',  icon: '🐦', quote: 'マンキンで行こうや！' },
+  nabe: { name: 'なべ',   icon: '🍲', quote: '脱ホストチームCEC渡辺です' },
+  zuru: { name: 'ズル',   icon: '😏', quote: 'お〜う、お疲れっしたあ' },
+};
+
+let selectedChar = null;
+
+function selectChar(id) {
+  selectedChar = CHARS[id];
+  document.getElementById('charSelectScreen').style.display = 'none';
+  document.getElementById('gameContainer').style.display = 'block';
+  document.getElementById('uncleName').textContent = selectedChar.name;
+  document.getElementById('uncleSpr').textContent = selectedChar.icon;
+  updateUI();
+  addLog(`🎮 ${selectedChar.name}の育成スタート！タップしてみよう`, 'event');
+}
+
 const TITLES = [
   'ひよっこ社員',     // 1
   '平社員',           // 2
