@@ -263,10 +263,127 @@
     }
 
     .levelup-banner .sub { font-size: 1rem; margin-top: 4px; }
+
+    /* Character select */
+    .char-select-screen {
+      width: 480px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .char-select-screen h1 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255,215,0,0.5);
+    }
+
+    .char-select-screen p {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 28px;
+    }
+
+    .char-cards {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .char-card {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 20px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .char-card:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #ffd700;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(255,215,0,0.2);
+    }
+
+    .char-card .char-icon { font-size: 56px; line-height: 1; }
+    .char-card .char-name { font-size: 1.1rem; font-weight: bold; color: #ffd700; }
+    .char-card .char-quote {
+      font-size: 0.68rem;
+      color: #bbb;
+      line-height: 1.4;
+      min-height: 2.8em;
+    }
+
+    /* speech bubble above sprite */
+    .speech-bubble {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.92);
+      color: #1a1a2e;
+      font-size: 0.78rem;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 16px;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: bubbleIn 0.15s ease, bubbleFade 1.8s 0.3s ease forwards;
+      z-index: 10;
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(255,255,255,0.92);
+      border-bottom: none;
+    }
+
+    @keyframes bubbleIn   { from { opacity:0; transform: translateX(-50%) scale(0.8); } to { opacity:1; transform: translateX(-50%) scale(1); } }
+    @keyframes bubbleFade { from { opacity:1; } to { opacity:0; transform: translateX(-50%) translateY(-10px); } }
   </style>
 </head>
 <body>
-<div class="game-container">
+
+<!-- キャラクター選択画面 -->
+<div class="char-select-screen" id="charSelectScreen">
+  <h1>おじさん育成ゲーム</h1>
+  <p>育てるキャラクターを選んでね！</p>
+  <div class="char-cards">
+    <div class="char-card" onclick="selectChar('uu')">
+      <span class="char-icon">🐦</span>
+      <span class="char-name">ウッウ</span>
+      <span class="char-quote">「マンキンで行こうや！」</span>
+    </div>
+    <div class="char-card" onclick="selectChar('nabe')">
+      <span class="char-icon">🍲</span>
+      <span class="char-name">なべ</span>
+      <span class="char-quote">「脱ホストチームCEC渡辺です」</span>
+    </div>
+    <div class="char-card" onclick="selectChar('zuru')">
+      <span class="char-icon">😏</span>
+      <span class="char-name">ズル</span>
+      <span class="char-quote">「お〜う、お疲れっしたあ」</span>
+    </div>
+  </div>
+</div>
+
+<div class="game-container" id="gameContainer" style="display:none">
   <h1>おじさん育成ゲーム</h1>
   <p class="subtitle">タップしておじさんを育てよう！</p>
 
