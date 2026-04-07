@@ -534,7 +534,7 @@ function expForLevel(lv) { return Math.floor(100 * Math.pow(1.35, lv - 1)); }
 function updateUI() {
   const lv = state.level;
   document.getElementById('level').textContent = lv;
-  document.getElementById('uncleSpr').textContent = SPRITES[Math.min(lv-1, SPRITES.length-1)];
+  // Keep character icon; overlay a level badge via title
   document.getElementById('uncleTitle').textContent = TITLES[Math.min(lv-1, TITLES.length-1)];
   document.getElementById('uncleAge').textContent = `年齢: ${state.age}歳`;
   document.getElementById('money').textContent = state.money.toLocaleString();
