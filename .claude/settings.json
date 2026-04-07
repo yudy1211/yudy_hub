@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/user/yudy_hub/.claude/auto-deploy.sh",
+            "timeout": 60,
+            "statusMessage": "自動デプロイ中..."
+          }
+        ]
+      }
+    ]
+  }
+}
