@@ -559,9 +559,25 @@ const CHARS = {
 };
 
 let selectedChar = null;
+let pendingChar = null;
 
-function selectChar(id) {
-  selectedChar = CHARS[id];
+function previewChar(id) {
+  pendingChar = CHARS[id];
+  document.getElementById('popupIcon').textContent  = pendingChar.icon;
+  document.getElementById('popupName').textContent  = pendingChar.name;
+  document.getElementById('popupQuote').textContent = `「${pendingChar.quote}」`;
+  document.getElementById('charPopupOverlay').classList.add('active');
+}
+
+function closePopup(e) {
+  // close when clicking overlay background (not the popup card itself)
+  if (e && e.target !== document.getElementById('charPopupOverlay')) return;
+  document.getElementById('charPopupOverlay').classList.remove('active');
+}
+
+function confirmChar() {
+  selectedChar = pendingChar;
+  document.getElementById('charPopupOverlay').classList.remove('active');
   document.getElementById('charSelectScreen').style.display = 'none';
   document.getElementById('gameContainer').style.display = 'block';
   document.getElementById('uncleName').textContent = selectedChar.name;
