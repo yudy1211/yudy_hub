@@ -318,12 +318,85 @@
 
     .char-card .char-icon { font-size: 56px; line-height: 1; }
     .char-card .char-name { font-size: 1.1rem; font-weight: bold; color: #ffd700; }
-    .char-card .char-quote {
-      font-size: 0.68rem;
-      color: #bbb;
-      line-height: 1.4;
-      min-height: 2.8em;
+
+    /* Character preview popup */
+    .char-popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
     }
+    .char-popup-overlay.active { display: flex; }
+
+    .char-popup {
+      background: linear-gradient(160deg, #2d2d4e, #1a3a5c);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 36px 32px 28px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: popIn 0.25s ease;
+    }
+
+    .char-popup .popup-icon { font-size: 80px; line-height: 1; margin-bottom: 12px; display: block; }
+    .char-popup .popup-name { font-size: 1.4rem; font-weight: bold; color: #ffd700; margin-bottom: 16px; }
+
+    .char-popup .popup-bubble {
+      background: #fff;
+      color: #1a1a2e;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 12px 20px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .char-popup .popup-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #fff;
+      border-bottom: none;
+    }
+
+    .char-popup .popup-bubble-tail { margin-bottom: 24px; }
+
+    .char-popup .btn-confirm {
+      width: 100%;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #1a1a2e;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .char-popup .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,200,0,0.4);
+    }
+    .char-popup .btn-back {
+      width: 100%;
+      background: transparent;
+      color: #aaa;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .char-popup .btn-back:hover { background: rgba(255,255,255,0.08); }
 
     /* speech bubble above sprite */
     .speech-bubble {
