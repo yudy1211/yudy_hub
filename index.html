@@ -632,6 +632,25 @@
 </div>
 
 <script>
+function goToCharSelect() {
+  const title = document.getElementById('titleScreen');
+  title.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  title.style.opacity = '0';
+  title.style.transform = 'scale(0.95)';
+  setTimeout(() => {
+    title.style.display = 'none';
+    const sel = document.getElementById('charSelectScreen');
+    sel.style.display = 'block';
+    sel.style.opacity = '0';
+    sel.style.transform = 'scale(1.03)';
+    sel.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    requestAnimationFrame(() => {
+      sel.style.opacity = '1';
+      sel.style.transform = 'scale(1)';
+    });
+  }, 300);
+}
+
 // Character definitions
 const CHARS = {
   uu:   { name: 'ウッウ',  icon: '<img src="IMG_2299.jpeg" style="width:80px;height:80px;object-fit:cover;object-position:top;border-radius:50%;">', quote: 'マンキンで行こうや！' },
