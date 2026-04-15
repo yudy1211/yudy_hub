@@ -457,35 +457,6 @@
     }
     .char-popup .btn-back:hover { background: rgba(255,255,255,0.08); }
 
-    /* speech bubble above sprite */
-    .speech-bubble {
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,255,255,0.92);
-      color: #1a1a2e;
-      font-size: 0.78rem;
-      font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 16px;
-      white-space: nowrap;
-      pointer-events: none;
-      animation: bubbleIn 0.15s ease, bubbleFade 1.8s 0.3s ease forwards;
-      z-index: 10;
-    }
-
-    .speech-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 6px solid transparent;
-      border-top-color: rgba(255,255,255,0.92);
-      border-bottom: none;
-    }
-
     @keyframes bubbleIn   { from { opacity:0; transform: translateX(-50%) scale(0.8); } to { opacity:1; transform: translateX(-50%) scale(1); } }
     @keyframes bubbleFade { from { opacity:1; } to { opacity:0; transform: translateX(-50%) translateY(-10px); } }
 
