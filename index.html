@@ -705,9 +705,9 @@ function confirmChar() {
   document.getElementById('charSelectScreen').style.display = 'none';
   document.getElementById('gameContainer').style.display = 'block';
   document.getElementById('uncleName').textContent = selectedChar.name;
-  document.getElementById('uncleSpr').innerHTML   = selectedChar.icon;
   updateUI();
-  addLog(`🎮 ${selectedChar.name}の育成スタート！タップしてみよう`, 'event');
+  addLog(`🎮 ${selectedChar.name}の育成スタート！マミーを避けて経験値を稼げ！`, 'event');
+  startMinigame();
 }
 
 const TITLES = [
