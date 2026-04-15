@@ -444,9 +444,75 @@
 
     @keyframes bubbleIn   { from { opacity:0; transform: translateX(-50%) scale(0.8); } to { opacity:1; transform: translateX(-50%) scale(1); } }
     @keyframes bubbleFade { from { opacity:1; } to { opacity:0; transform: translateX(-50%) translateY(-10px); } }
+
+    /* Title screen */
+    .title-screen {
+      width: 480px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 56px 32px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .title-screen:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.2);
+    }
+
+    .title-screen:active { transform: scale(0.98); }
+
+    .title-logo {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    .title-screen h1 {
+      font-size: 2rem;
+      color: #1a3a6b;
+      margin-bottom: 8px;
+    }
+
+    .title-screen .title-sub {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 40px;
+    }
+
+    .title-tap-hint {
+      font-size: 1rem;
+      color: #1a3a6b;
+      font-weight: bold;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
   </style>
 </head>
 <body>
+
+<!-- タイトル画面 -->
+<div class="title-screen" id="titleScreen" onclick="goToCharSelect()">
+  <span class="title-logo">💼</span>
+  <h1>社会人育成ゲーム</h1>
+  <p class="title-sub">あなたも一流の社会人を目指せ！</p>
+  <div class="title-tap-hint">タップしてスタート</div>
+</div>
 
 <!-- キャラクター選択画面 -->
 <div class="char-select-screen" id="charSelectScreen">
