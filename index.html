@@ -564,10 +564,19 @@
   <h1>社会人育成ゲーム</h1>
   <p class="subtitle">タップしておじさんを育てよう！</p>
 
-  <div class="uncle-area" id="uncleArea">
-    <span class="uncle-sprite" id="uncleSpr" onclick="tap()">🧔</span>
-    <div class="uncle-name" id="uncleName"></div>
-    <div class="uncle-title" id="uncleTitle">ひよっこ社員</div>
+  <!-- Mini-game -->
+  <div class="minigame-wrap" id="minigame">
+    <div class="mg-score" id="mgScore">回避: 0回</div>
+    <div class="mg-hint" id="mgHint">キャラを選ぶとゲームスタート！</div>
+    <div class="mg-player" id="mgPlayer"></div>
+  </div>
+
+  <!-- Char info -->
+  <div class="char-info-bar">
+    <div>
+      <div class="uncle-name" id="uncleName"></div>
+      <div class="uncle-title" id="uncleTitle">ひよっこ社員</div>
+    </div>
     <div class="uncle-age" id="uncleAge">年齢: 22歳</div>
   </div>
 
