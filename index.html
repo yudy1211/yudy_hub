@@ -805,49 +805,165 @@ function showLevelUp() {
   setTimeout(() => { banner.style.display = 'none'; }, 2200);
 }
 
-function floatText(text) {
-  const area = document.getElementById('uncleArea');
-  const el = document.createElement('div');
-  el.className = 'float-text';
-  el.textContent = text;
+// ---- Mini-game engine ----
+const GAME_H = 260;
+const PLAYER_W = 44;
+const MAMMY_W  = 32;
+
+const mg = {
+  running: false,
+  playerX: 50,   // % of game width
+  mamis: [],
+  nextId: 0,
+  spawnTimer: 0,
+  frame: null,
+  lastTime: 0,
+  dodgeCount: 0,
+  invincible: false,
+};
+
+function startMinigame() {
+  const gameEl = document.getElementById('minigame');
+  document.getElementById('mgHint').style.display = 'none';
+
+  // Set player icon
+  const playerEl = document.getElementById('mgPlayer');
+  playerEl.innerHTML = selectedChar.icon;
+
+  mg.running    = true;
+  mg.lastTime   = performance.now();
+  mg.dodgeCount = 0;
+  mg.mamis      = [];
+  mg.playerX    = 50;
+
+  // Controls: follow touch/mouse X
+  function handleMove(e) {
+    e.preventDefault();
+    const rect = gameEl.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const pct = (clientX - rect.left) / rect.width * 100;
+    mg.playerX = Math.max(3, Math.min(97, pct));
+  }
+  gameEl.addEventListener('touchmove',  handleMove, { passive: false });
+  gameEl.addEventListener('touchstart', handleMove, { passive: false });
+  gameEl.addEventListener('mousemove',  handleMove);
+
+  mg.frame = requestAnimationFrame(gameTick);
+}
+
+function gameTick(timestamp) {
+  if (!mg.running) return;
+
+  const dt = Math.min(timestamp - mg.lastTime, 50);
+  mg.lastTime = timestamp;
+
+  const gameEl = document.getElementById('minigame');
+  const w = gameEl.offsetWidth;
+
+  // Spawn
+  mg.spawnTimer += dt;
+  const spawnInterval = Math.max(500, 2000 - state.level * 120);
+  if (mg.spawnTimer >= spawnInterval) {
+    mg.spawnTimer = 0;
+    spawnMammy(gameEl, w);
+  }
+
+  // Fall speed scales with level
+  const speed = (2.5 + state.level * 0.25) * (dt / 16);
+
+  // Player pixel position
+  const px = (mg.playerX / 100) * w;
+  const playerEl = document.getElementById('mgPlayer');
+  playerEl.style.left = `${px - PLAYER_W / 2}px`;
+
+  // Update mamis
+  mg.mamis = mg.mamis.filter(m => {
+    m.y += speed;
+    const mEl = document.getElementById(`mgm-${m.id}`);
+    if (!mEl) return false;
+
+    // Off bottom → dodged
+    if (m.y > GAME_H + 20) {
+      mEl.remove();
+      mg.dodgeCount++;
+      document.getElementById('mgScore').textContent = `回避: ${mg.dodgeCount}回`;
+      const expG = 3 + Math.floor(state.level * 0.8);
+      gainExp(expG);
+      mgFloat(`+${expG} EXP`, m.xPx, GAME_H - 30);
+      updateUI();
+      return false;
+    }
+
+    // Collision
+    if (!mg.invincible) {
+      const playerBottom = GAME_H - 10;
+      const playerTop    = playerBottom - PLAYER_W;
+      const dx = Math.abs(m.xPx - px);
+      const dy = Math.abs((m.y + MAMMY_W / 2) - (playerBottom - PLAYER_W / 2));
+      if (dx < (PLAYER_W + MAMMY_W) / 2.2 && dy < 36) {
+        mEl.remove();
+        onMammyHit(gameEl);
+        return false;
+      }
+    }
+
+    mEl.style.top = `${m.y}px`;
+    return true;
+  });
+
+  mg.frame = requestAnimationFrame(gameTick);
+}
+
+function spawnMammy(gameEl, w) {
+  const id   = mg.nextId++;
+  const xPct = 8 + Math.random() * 84;
+  const xPx  = (xPct / 100) * w;
+  mg.mamis.push({ id, xPx, y: -60 });
+
+  const div = document.createElement('div');
+  div.id        = `mgm-${id}`;
+  div.className = 'mg-mammy';
+  div.style.left = `${xPx - MAMMY_W / 2}px`;
+  div.style.top  = '-60px';
+  div.innerHTML  = '👩<span class="mg-mammy-label">マミー</span>';
+  gameEl.appendChild(div);
+}
+
+function onMammyHit(gameEl) {
+  mg.invincible = true;
+
+  // Red flash
+  const flash = document.createElement('div');
+  flash.className = 'mg-hit-flash';
+  gameEl.appendChild(flash);
+  setTimeout(() => flash.remove(), 450);
+
+  const cost = 1500 + Math.floor(Math.random() * 500);
+  state.mood  = clamp(state.mood  + 15);
+  state.hp    = clamp(state.hp    - 8);
+  state.money = Math.max(0, state.money - cost);
+  addLog(`🍺 マミーに飲みに連れて行かれた！ -${cost}円 HP-8`, 'bad');
+  mgFloat('飲まされた〜🍺', mg.playerX / 100 * document.getElementById('minigame').offsetWidth, GAME_H - 60);
+  updateUI();
+
+  setTimeout(() => { mg.invincible = false; }, 1800);
+}
+
+function mgFloat(text, xPx, yPx) {
+  const area = document.getElementById('minigame');
+  const el   = document.createElement('div');
+  el.className    = 'float-text';
+  el.style.left   = `${xPx}px`;
+  el.style.top    = `${yPx}px`;
+  el.style.transform = 'translateX(-50%)';
+  el.textContent  = text;
   area.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
 
-function showSpeechBubble(text) {
-  const area = document.getElementById('uncleArea');
-  // Remove any existing bubble
-  const old = area.querySelector('.speech-bubble');
-  if (old) old.remove();
-  const el = document.createElement('div');
-  el.className = 'speech-bubble';
-  el.textContent = text;
-  area.appendChild(el);
-  setTimeout(() => el.remove(), 2100);
-}
-
-function tap() {
-  state.tapCount++;
-  const expGain = 1 + Math.floor(state.level * 0.5);
-  gainExp(expGain);
-  floatText(`+${expGain} EXP`);
-
-  // Show character's signature quote on every tap
-  if (selectedChar) showSpeechBubble(selectedChar.quote);
-
-  // Small random events every 10 taps
-  if (state.tapCount % 10 === 0) {
-    const events = [
-      ['「よし、一丁やるか」とつぶやいた', 'good', {mood: 5}],
-      ['「うう…腰が痛い」と嘆いた', 'bad', {hp: -5}],
-      ['「今日も一杯やるか」と微笑んだ', 'good', {mood: 3}],
-      ['「若いもんには負けん」と燃えている', 'good', {work: 8}],
-    ];
-    const [msg, type, delta] = events[Math.floor(Math.random() * events.length)];
-    addLog(`${selectedChar ? selectedChar.name : 'おじさん'}が${msg}`, type);
-    Object.entries(delta).forEach(([k, v]) => { state[k] = clamp(state[k] + v); });
-  }
-  updateUI();
+function floatText(text) {
+  // Action button feedback: show near player position
+  mgFloat(text, (mg.playerX / 100) * (document.getElementById('minigame').offsetWidth || 400), GAME_H - 60);
 }
 
 const actionDefs = {
